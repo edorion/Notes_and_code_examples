@@ -1,0 +1,39 @@
+------------ Database stuff --------------------
+
+tpsql 
+pass: super
+\d
+\d "tablename" <-- shows schema
+\q (to quit)
+
+' <-- for strings
+; to terminate command
+
+
+------------- Scripting ------------------
+
+for i in 3 4 5 6 7 8 9 10 11 12 15 16 17 18 27 31 32 33 43 51 54 57 72 150 151 163 188 226;
+do
+tpsql -c "SELECT * from <somewhere> WHERE id = $i";
+done;
+
+super
+
+tpsql -c "Select * from location_profile_home Where id = $i";
+
+
+
+## select given / sirname in db from list of strings
+for i in "<some list of strings>";
+do
+set -- $i;  
+tpsql -c "SELECT <table name>.*, <table name>.<row name> FROM <list of coma seperated table names> WHERE <table name>.<row name> = <table name>.<row name> AND <table name>.<row name> = <table name>.<row name> AND <table name>.<row name> ILIKE '$1%' AND <table name>.<row name> ILIKE '$2%';"
+done;
+
+
+## change DB records
+begin;
+UPDATE <table name> SET <row name> = '<some string>' , user_name = '<some string>' WHERE <row name> = '<some string>' AND <table name>.<row name> = '<random string>';
+--commit;
+
+rollback (if in error)

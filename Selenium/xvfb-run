@@ -1,0 +1,38 @@
+#/bin/bash
+#
+# /etc/rc.d/init.d/xvfb-run
+# Written by Andrew McDonald
+# chkconfig: - 85 15
+# description: Starts/Stops X Virtual Framebuffer server
+# processname: Xvfb-run
+#
+
+PROG="/usr/bin/xvfb-run"
+PROG_FIREFOX_TEMPLATE="/root/.mozilla/firefox/ab8mpr14.Selenium"
+PROG_FIREFOX_WEBDRIVER="/usr/lib64/firefox/firefox"
+PROG_JAVA_JAR="/usr/local/selenium/Driver/selenium-server-standalone-2.28.0.jar"
+PROG_OUTPUT="/usr/local/selenium/Log/selenium.log"
+PROG_DISPLAY=1
+PROG_BROWSERTIMEOUT=120;
+PROG_TIMEOUT=120;
+PIDFILE=/var/run/selenium.pid
+
+case "$1" in
+    start)
+        echo -n "Starting : X Virtual Frame Buffer "
+        DISPLAY=:$PROG_DISPLAY $PROG java -jar $PROG_JAVA_JAR -firefoxProfileTemplate $PROG_FIREFOX_TEMPLATE -Dwebdriver.firefox.bin="$PROG_FIREFOX_WEBDRIVER" -timeout=$PROG_TIMEOUT &
+	echo $! > $PIDFILE
+   		;;
+    stop)
+        echo -n "Shutting down : X Virtual Frame Buffer"
+        killall java;
+;;
+    restart|reload)
+    	$0 stop
+    	$0 start
+      	;;
+    *)
+     echo $"Usage: $0 (start|stop|restart|reload)"
+     exit 1
+esac
+

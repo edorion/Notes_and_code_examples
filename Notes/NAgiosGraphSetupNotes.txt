@@ -1,0 +1,47 @@
+chown apache,- on /usr/local/nagios-graph/var/nagiosgraph-cgi.log
+
+  To complete the installation, do the following:
+
+  * In the nagios configuration file (e.g. nagios.cfg),
+    add these lines:
+
+# process nagios performance data using nagiosgraph
+process_performance_data=1
+service_perfdata_file=/tmp/perfdata.log
+service_perfdata_file_template=$LASTSERVICECHECK$||$HOSTNAME$||$SERVICEDESC$||$SERVICEOUTPUT$||$SERVICEPERFDATA$
+service_perfdata_file_mode=a
+service_perfdata_file_processing_interval=30
+service_perfdata_file_processing_command=process-service-perfdata-for-nagiosgraph
+
+
+  * In the nagios commands file (e.g. command.cfg),
+    add these lines:
+
+# command to process nagios performance data for nagiosgraph
+define command {
+  command_name process-service-perfdata-for-nagiosgraph
+  command_line /usr/local/nagios-graph/bin/insert.pl
+}
+
+
+  * In the apache configuration file (e.g. httpd.conf),
+    add this line:
+
+include /usr/local/nagios-graph/etc/nagiosgraph-apache.conf
+
+  * Restart nagios to start data collection:
+
+/etc/init.d/nagios restart
+
+  * Restart apache to enable display of graphs:
+
+/etc/init.d/apache restart
+
+  * To enable graph links and mouseovers, see README sections:
+       Displaying Per-Service and Per-Host Graph Icons and Links
+       Displaying Graphs in Nagios Mouseovers
+
+
+*** one or more problems were detected!
+
+

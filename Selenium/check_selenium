@@ -1,0 +1,55 @@
+#!/usr/bin/perl
+
+#catches output of selenium script ran with TimePerf2
+#credit to nagios plugin scripts, forgotten author, original scripts was heavily modified to suit puprose
+
+use strict;
+use Getopt::Long;
+
+my $message ='Script Ran, but an error occurred.\n';
+my $rc = 2;
+my $performance_msg = '';
+my $time = '';
+my $script = "/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0.x86_64/bin/java -cp /usr/local/selenium-server/.:/usr/local/selenium-server/junit-4.10.jar:/usr/local/selenium-server/selenium-server-standalone-2.28.0.jar:/usr/local/selenium-server/selenium-2.26.0/.:/usr/local/selenium-server/selenium-2.2x65.0/libs/. org.junit.runner.JUnitCore $ARGV[0]";
+my @items_ran = '';
+GetOptions(
+    's|script=s' => \$script,    # REQUIRED
+);
+
+if ( ! $script ) {
+    print "No script, use --script\n";
+    exit(2);
+}
+
+my $output = `$script 2>&1`;
+if ( $output =~ m/FAILURES!!!/ ) {
+    $message = "Something went wrong. Please check the extended error log \n" . $output;
+    $rc = 2; #end it with an error
+} elsif ( $output =~ m/ERROR/ ) {
+    my @lines = split(/\n/, $output);
+    foreach my $line (@lines) {
+        if ( $line =~ m/ERROR/ ) {
+            (@items_ran) = split(/ /, $line);
+            $message = "$items_ran[1] $items_ran[2] $items_ran[3] $items_ran[4] $items_ran[5] \n";
+        }
+    }
+    $rc = 2; #end it with an error
+} elsif ( $output =~ m/OK/ )  {
+    my @lines = split(/\n/, $output);
+    foreach my $line (@lines) {
+       if ( $line =~ m/OK/ ) {
+           $time=substr($message, 6);
+           $performance_msg = "time=$time\s";
+           $message = "$line $message | $performance_msg\n";
+       }elsif ( $line =~ m/Time/ ) {
+	    $message = $line;
+       }
+    }
+    $rc = 0;
+} else {
+    $message = "UNKNOWN: $output";
+    $rc = 3;
+}
+
+print "$message";
+exit $rc;
